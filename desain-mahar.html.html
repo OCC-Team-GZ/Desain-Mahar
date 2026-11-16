@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OCC TEAM feat AG TEAM - Katalog Desain</title>
+  <!-- Menggunakan Tailwind CSS untuk styling modern dan responsif -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, #020617, #0b1022 30%, #020617);
+      color: #e5e7eb;
+      min-height: 100vh;
+    }
+    /* Custom scrollbar untuk estetika */
+    ::-webkit-scrollbar { width: 8px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #22c55e; }
+    
+    /* Sembunyikan scrollbar di bar kategori horizontal tapi tetap bisa di-scroll */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- HEADER & NAVIGASI -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-slate-950/90 border-b border-slate-800/80 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <!-- Baris Atas: Brand & Kolom Pencarian Fleksibel -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
+        <div>
+          <h1 class="text-xl md:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            OCC TEAM <span class="text-emerald-400">X</span> AG TEAM
+          </h1>
+          <p class="text-xs text-slate-400 mt-0.5">Katalog Aset Vektor & CorelDRAW (.CDR)</p>
+        </div>
+
+        <!-- Pencarian dengan Tombol Reset (X) & Pengurutan -->
+        <div class="flex items-center gap-2.5 w-full md:w-auto">
+          <div class="relative flex-1 md:w-72 lg:w-80">
+            <input type="text" id="searchInput" placeholder="Cari desain (misal: Joglo, Masjid, TNI)..." 
+              class="w-full bg-slate-900/95 border border-slate-800 focus:border-emerald-500 rounded-xl pl-9 pr-9 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition" />
+            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <!-- Tombol hapus teks pencarian -->
+            <button id="clearSearchBtn" onclick="clearSearch()" title="Hapus pencarian"
+              class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-white p-0.5 rounded-md hover:bg-slate-800 transition cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+
+          <!-- Dropdown Urutkan -->
+          <select id="sortSelect" aria-label="Urutkan desain"
+            class="bg-slate-900/95 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-300 focus:outline-none cursor-pointer transition">
+            <option value="default">Urutan Default</option>
+            <option value="az">Nama: A - Z</option>
+            <option value="za">Nama: Z - A</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Baris Bawah: Filter Kategori + Jumlah Item + Pilihan Tampilan -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-3.5 pt-3 border-t border-slate-800/60">
+        <!-- Menu Filter Kategori dengan Penghitung Item -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0" id="menu">
+          <!-- Tombol kategori di-render otomatis dengan jumlah item masing-masing -->
+        </div>
+
+        <!-- Kontrol Tampilan (Grid vs List & Ukuran Kolom) -->
+        <div class="flex items-center justify-between sm:justify-end gap-3 text-xs text-slate-400">
+          <span>Menampilkan <strong id="itemCount" class="text-emerald-400">0</strong> aset</span>
+          
+          <div class="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+            <button id="viewGridBtn" onclick="setViewMode('grid')" title="Tampilan Grid"
+              class="p-1.5 rounded-md bg-emerald-500/20 text-emerald-400 transition cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            </button>
+            <button id="viewListBtn" onclick="setViewMode('list')" title="Tampilan Daftar Ringkas"
+              class="p-1.5 rounded-md text-slate-400 hover:text-slate-200 transition cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- KONTEN UTAMA: KATALOG PRODUK -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+    <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+      <!-- Kartu produk di-render otomatis oleh JavaScript -->
+    </div>
+
+    <!-- Empty State jika pencarian kosong -->
+    <div id="emptyState" class="hidden text-center py-20 px-4">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 text-slate-500 mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
+      <h3 class="text-lg font-semibold text-slate-200">Desain tidak ditemukan</h3>
+      <p class="text-sm text-slate-400 mt-1 max-w-md mx-auto">Tidak ada aset yang cocok dengan kata kunci atau filter yang dipilih.</p>
+      <button onclick="resetAllFilters()" class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-sm font-semibold transition cursor-pointer">
+        Reset Pencarian & Filter
+      </button>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/60 text-slate-400 text-sm mt-auto">
+    <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+      <div>© 2026 <strong class="text-slate-200">OCC TEAM & AG TEAM</strong>. Katalog Aset Grafis.</div>
+      <div class="text-xs text-slate-500">Klik pada gambar desain untuk memperbesar pratinjau (Quick View)</div>
+    </div>
+  </footer>
+
+  <!-- MODAL LIGHTBOX (QUICK VIEW PRATINJAU DESAIN) -->
+  <div id="previewModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md transition-opacity">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col">
+      <!-- Header Modal -->
+      <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div class="flex items-center gap-2.5 overflow-hidden">
+          <span id="modalBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">Kategori</span>
+          <h2 id="modalTitle" class="text-base sm:text-lg font-bold text-white truncate">Nama Desain</h2>
+        </div>
+        <button onclick="closePreviewModal()" title="Tutup (ESC)" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Area Gambar Besar dengan Navigasi Prev/Next -->
+      <div class="relative bg-slate-950 flex items-center justify-center aspect-square max-h-[65vh] w-full overflow-hidden group">
+        <img id="modalImg" src="" alt="Preview Besar" class="max-h-full max-w-full object-contain p-2 transition-transform duration-300" />
+        
+        <!-- Tombol Sebelumnya -->
+        <button onclick="navigatePreview(-1)" title="Desain Sebelumnya"
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/85 hover:bg-emerald-500 text-white hover:text-slate-950 border border-slate-700 flex items-center justify-center shadow-lg transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+
+        <!-- Tombol Berikutnya -->
+        <button onclick="navigatePreview(1)" title="Desain Berikutnya"
+          class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/85 hover:bg-emerald-500 text-white hover:text-slate-950 border border-slate-700 flex items-center justify-center shadow-lg transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
+
+      <!-- Footer Modal: Info File & Tombol Download -->
+      <div class="px-5 py-4 bg-slate-950/80 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="text-xs text-slate-400 text-center sm:text-left">
+          File Vektor: <span id="modalFilename" class="text-slate-200 font-mono">nama-file.cdr</span>
+        </div>
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <button onclick="closePreviewModal()" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 text-sm font-medium transition cursor-pointer">
+            Tutup
+          </button>
+          <a id="modalDownloadBtn" href="#" download
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            Download .CDR
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOMBOL KEMBALI KE ATAS (SCROLL TO TOP) -->
+  <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Kembali ke atas"
+    class="fixed bottom-5 right-5 z-30 hidden p-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-xl shadow-emerald-500/25 transition-all cursor-pointer">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+  </button>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Data katalog aset
+    const products = [
+      // ORNAMENT
+      { name: "Wayang Arjuna & Shinta", cat: "Ornament", slug: "Wayang-Arjuna-Shinta" },
+      { name: "Ornament-Awan", cat: "Ornament", slug: "Ornament-Awan" },
+      { name: "2 EURO", cat: "Ornament", slug: "2-Euro" },
+      { name: "Ondel - Ondel", cat: "Ornament", slug: "Ondel-Ondel" },
+      { name: "Jembatan Ampera", cat: "Ornament", slug: "Jembatan-Ampera" },
+      { name: "Ornament Rumah Bugis", cat: "Ornament", slug: "Ornament-Rumah-Bugis" },
+      { name: "Ornament Rumah Batak", cat: "Ornament", slug: "Ornament-Batak" },
+      { name: "Ornament Rumah Minang", cat: "Ornament", slug: "Ornament-Rumah-Minang" },
+      { name: "Rumah Joglo", cat: "Ornament", slug: "Rumah-Joglo" },
+      { name: "Ornament Rumah Joglo", cat: "Ornament", slug: "Ornament-Rumah-Joglo" },
+      { name: "Ornament Rumah Joglo 2", cat: "Ornament", slug: "Ornament-Rumah-Joglo-2" },
+      { name: "Ornament Rumah Joglo 3", cat: "Ornament", slug: "Ornament-Rumah-Joglo-3" },
+      { name: "Ornament Singer Lampung", cat: "Ornament", slug: "Ornament-Singer-Lampung" },
+      { name: "Mahkota-Sunda", cat: "Ornament", slug: "Mahkota-Sunda" },
+      { name: "Bissmillah", cat: "Ornament", slug: "Bissmillah" },
+      { name: "Buku Nikah", cat: "Ornament", slug: "Buku-Nikah" },
+      { name: "Logam Mulia", cat: "Ornament", slug: "Logam-Mulia" },
+      { name: "Meja Baca", cat: "Ornament", slug: "Meja-Baca" },
+      { name: "Name Tag", cat: "Ornament", slug: "Name-Tag" },
+      { name: "Tasbih", cat: "Ornament", slug: "Tasbih" },
+      // SILUET
+      { name: "Siluet People 01", cat: "siluet", slug: "Siluet-People-01" },
+      { name: "Siluet People 02", cat: "siluet", slug: "Siluet-People-02" },
+      { name: "Siluet People 03", cat: "siluet", slug: "Siluet-People-03" },
+      { name: "Siluet People 04", cat: "siluet", slug: "Siluet-People-04" },
+      // FRAME
+      { name: "Masjid 01", cat: "frame", slug: "Frame-Masjid-01" },
+      { name: "Frame Jawa", cat: "frame", slug: "Frame-Jawa" },
+      { name: "Masjid 02", cat: "frame", slug: "Frame-Masjid-02" },
+      { name: "Prince", cat: "frame", slug: "Frame-Prince" },
+      // PROFESI
+      { name: "Profesi Jalasenantri", cat: "profesi", slug: "Profesi-Jalasenantri" },
+      { name: "Profesi Polri", cat: "profesi", slug: "Profesi-Polri" },
+      { name: "Profesi TNI Darat", cat: "profesi", slug: "Profesi-TNI-Darat" },
+      { name: "Profesi TNI Laut", cat: "profesi", slug: "Profesi-TNI-Laut" },
+      { name: "Profesi TNI Udara", cat: "profesi", slug: "Profesi-TNI-Udara" },
+      { name: "BHAYANGKARI-(KEMALA-HIKMAH)", cat: "profesi", slug: "BHAYANGKARI-(KEMALA-HIKMAH)" }
+    ];
+
+    // State aplikasi
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let currentSort = 'default';
+    let viewMode = 'grid'; // 'grid' atau 'list'
+    let filteredList = [...products];
+    let activePreviewIndex = 0;
+
+    // Elemen DOM
+    const grid = document.getElementById('grid');
+    const menu = document.getElementById('menu');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const sortSelect = document.getElementById('sortSelect');
+    const itemCount = document.getElementById('itemCount');
+    const emptyState = document.getElementById('emptyState');
+    const previewModal = document.getElementById('previewModal');
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+    // Format huruf kapital di awal kata kategori
+    function formatBadge(cat) {
+      return cat.charAt(0).toUpperCase() + cat.slice(1);
+    }
+
+    // Render tombol filter kategori beserta jumlah itemnya
+    function renderCategoryMenu() {
+      const categories = [
+        { id: 'all', label: 'Semua' },
+        { id: 'Ornament', label: 'Ornament' },
+        { id: 'siluet', label: 'Siluet' },
+        { id: 'frame', label: 'Frame' },
+        { id: 'profesi', label: 'Profesi' }
+      ];
+
+      menu.innerHTML = categories.map(c => {
+        const count = c.id === 'all' 
+          ? products.length 
+          : products.filter(p => p.cat.toLowerCase() === c.id.toLowerCase()).length;
+        const isActive = currentFilter.toLowerCase() === c.id.toLowerCase();
+
+        return `
+          <button data-filter="${c.id}"
+            class="filter-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium border whitespace-nowrap transition cursor-pointer ${
+              isActive 
+                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400 shadow-sm' 
+                : 'border-slate-800 bg-slate-900/70 text-slate-300 hover:border-emerald-500/50 hover:text-white'
+            }">
+            <span>${c.label}</span>
+            <span class="px-1.5 py-0.2 rounded-full text-[11px] ${isActive ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'}">${count}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Render Kartu Produk (Mendukung tampilan Grid & List)
+    function renderCards() {
+      // 1. Filter berdasarkan kategori & pencarian
+      let result = products.filter(item => {
+        const matchCat = currentFilter === 'all' || item.cat.toLowerCase() === currentFilter.toLowerCase();
+        const keyword = currentSearch.toLowerCase().trim();
+        const matchSearch = item.name.toLowerCase().includes(keyword) || 
+                            item.cat.toLowerCase().includes(keyword) ||
+                            item.slug.toLowerCase().includes(keyword);
+        return matchCat && matchSearch;
+      });
+
+      // 2. Pengurutan
+      if (currentSort === 'az') {
+        result.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (currentSort === 'za') {
+        result.sort((a, b) => b.name.localeCompare(a.name));
+      }
+
+      filteredList = result;
+      itemCount.textContent = result.length;
+
+      if (result.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      if (viewMode === 'grid') {
+        grid.className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5';
+        grid.innerHTML = result.map((item, idx) => {
+          const imgSrc = `asset/img/${item.slug}.jpg`;
+          const cdrHref = `asset/file/${item.slug}.cdr`;
+          const fallbackImg = `https://placehold.co/400x400/0f172a/22c55e?text=${encodeURIComponent(item.name)}`;
+
+          return `
+            <article class="group bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800/90 hover:border-emerald-500/60 rounded-2xl overflow-hidden shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 flex flex-col">
+              <!-- Area Gambar (Klik untuk Quick View) -->
+              <div onclick="openPreviewModal(${idx})" title="Klik untuk memperbesar gambar"
+                class="aspect-square bg-slate-950 relative overflow-hidden border-b border-slate-800/80 cursor-zoom-in">
+                <span class="absolute top-2.5 left-2.5 z-10 bg-slate-950/85 backdrop-blur-md border border-slate-800 px-2.5 py-0.5 rounded-full text-[11px] font-medium text-slate-300">
+                  ${formatBadge(item.cat)}
+                </span>
+                <!-- Ikon Zoom saat hover -->
+                <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
+                  <span class="p-2.5 rounded-full bg-slate-900/90 border border-slate-700 text-emerald-400 shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
+                  </span>
+                </div>
+                <img src="${imgSrc}" alt="${item.name}" loading="lazy"
+                  onerror="this.onerror=null;this.src='${fallbackImg}';"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              </div>
+
+              <!-- Info & Tombol Download -->
+              <div class="p-3.5 sm:p-4 flex-1 flex flex-col justify-between gap-3">
+                <h3 onclick="openPreviewModal(${idx})" class="font-semibold text-sm sm:text-base text-slate-100 hover:text-emerald-400 leading-snug line-clamp-2 cursor-pointer transition" title="${item.name}">
+                  ${item.name}
+                </h3>
+                <div class="flex items-center gap-2">
+                  <button onclick="openPreviewModal(${idx})" title="Lihat Detail"
+                    class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:border-slate-600 text-slate-300 hover:text-white transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                  </button>
+                  <a href="${cdrHref}" download
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-emerald-500/70 bg-slate-950 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 font-semibold text-xs sm:text-sm transition-all duration-200">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>Download</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+      } else {
+        // TAMPILAN LIST (RINGKAS & CEPAT DIPINDAI)
+        grid.className = 'flex flex-col gap-3';
+        grid.innerHTML = result.map((item, idx) => {
+          const imgSrc = `asset/img/${item.slug}.jpg`;
+          const cdrHref = `asset/file/${item.slug}.cdr`;
+          const fallbackImg = `https://placehold.co/200x200/0f172a/22c55e?text=${encodeURIComponent(item.name)}`;
+
+          return `
+            <article class="group bg-slate-900/80 hover:bg-slate-900 border border-slate-800/90 hover:border-emerald-500/50 rounded-2xl p-3 flex items-center justify-between gap-4 transition">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div onclick="openPreviewModal(${idx})" class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden shrink-0 cursor-zoom-in">
+                  <img src="${imgSrc}" alt="${item.name}" loading="lazy"
+                    onerror="this.onerror=null;this.src='${fallbackImg}';"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                </div>
+                <div class="min-w-0">
+                  <span class="inline-block text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full mb-1">
+                    ${formatBadge(item.cat)}
+                  </span>
+                  <h3 onclick="openPreviewModal(${idx})" class="font-semibold text-sm sm:text-base text-slate-100 hover:text-emerald-400 truncate cursor-pointer">
+                    ${item.name}
+                  </h3>
+                  <p class="text-xs text-slate-500 font-mono truncate hidden sm:block">${item.slug}.cdr</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                <button onclick="openPreviewModal(${idx})" class="px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 hover:border-slate-600 text-slate-300 text-xs sm:text-sm font-medium transition cursor-pointer">
+                  Lihat
+                </button>
+                <a href="${cdrHref}" download
+                  class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-500/70 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 font-semibold text-xs sm:text-sm transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                  <span class="hidden sm:inline">Download</span>
+                </a>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+    }
+
+    // Event Filter Kategori
+    menu.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      currentFilter = btn.dataset.filter;
+      renderCategoryMenu();
+      renderCards();
+    });
+
+    // Event Pencarian Real-time
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value;
+      clearSearchBtn.classList.toggle('hidden', currentSearch.length === 0);
+      renderCards();
+    });
+
+    function clearSearch() {
+      searchInput.value = '';
+      currentSearch = '';
+      clearSearchBtn.classList.add('hidden');
+      searchInput.focus();
+      renderCards();
+    }
+
+    function resetAllFilters() {
+      currentFilter = 'all';
+      currentSearch = '';
+      currentSort = 'default';
+      searchInput.value = '';
+      sortSelect.value = 'default';
+      clearSearchBtn.classList.add('hidden');
+      renderCategoryMenu();
+      renderCards();
+    }
+
+    // Event Pengurutan
+    sortSelect.addEventListener('change', (e) => {
+      currentSort = e.target.value;
+      renderCards();
+    });
+
+    // Ubah Mode Tampilan (Grid / List)
+    function setViewMode(mode) {
+      viewMode = mode;
+      const gridBtn = document.getElementById('viewGridBtn');
+      const listBtn = document.getElementById('viewListBtn');
+
+      if (mode === 'grid') {
+        gridBtn.className = 'p-1.5 rounded-md bg-emerald-500/20 text-emerald-400 transition cursor-pointer';
+        listBtn.className = 'p-1.5 rounded-md text-slate-400 hover:text-slate-200 transition cursor-pointer';
+      } else {
+        listBtn.className = 'p-1.5 rounded-md bg-emerald-500/20 text-emerald-400 transition cursor-pointer';
+        gridBtn.className = 'p-1.5 rounded-md text-slate-400 hover:text-slate-200 transition cursor-pointer';
+      }
+      renderCards();
+    }
+
+    // Fungsi Modal Lightbox (Quick View)
+    function openPreviewModal(index) {
+      activePreviewIndex = index;
+      updateModalContent();
+      previewModal.classList.remove('hidden');
+      previewModal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePreviewModal() {
+      previewModal.classList.add('hidden');
+      previewModal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    function navigatePreview(step) {
+      if (filteredList.length === 0) return;
+      activePreviewIndex = (activePreviewIndex + step + filteredList.length) % filteredList.length;
+      updateModalContent();
+    }
+
+    function updateModalContent() {
+      const item = filteredList[activePreviewIndex];
+      if (!item) return;
+
+      const imgSrc = `asset/img/${item.slug}.jpg`;
+      const cdrHref = `asset/file/${item.slug}.cdr`;
+      const fallbackImg = `https://placehold.co/600x600/0f172a/22c55e?text=${encodeURIComponent(item.name)}`;
+
+      document.getElementById('modalBadge').textContent = formatBadge(item.cat);
+      document.getElementById('modalTitle').textContent = item.name;
+      document.getElementById('modalFilename').textContent = `${item.slug}.cdr`;
+      document.getElementById('modalDownloadBtn').href = cdrHref;
+
+      const modalImg = document.getElementById('modalImg');
+      modalImg.onerror = function() {
+        this.onerror = null;
+        this.src = fallbackImg;
+      };
+      modalImg.src = imgSrc;
+    }
+
+    // Tutup modal klik di luar area atau tombol keyboard (ESC, Panah Kiri/Kanan)
+    previewModal.addEventListener('click', (e) => {
+      if (e.target === previewModal) closePreviewModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!previewModal.classList.contains('hidden')) {
+        if (e.key === 'Escape') closePreviewModal();
+        if (e.key === 'ArrowLeft') navigatePreview(-1);
+        if (e.key === 'ArrowRight') navigatePreview(1);
+      }
+    });
+
+    // Tombol Scroll to Top muncul saat halaman digulir ke bawah
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        scrollTopBtn.classList.remove('hidden');
+      } else {
+        scrollTopBtn.classList.add('hidden');
+      }
+    });
+
+    // Inisialisasi awal
+    renderCategoryMenu();
+    renderCards();
+  </script>
+</body>
+</html>
