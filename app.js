@@ -14,6 +14,7 @@ const products = [
   { name: "Ornament Rumah Joglo 2", cat: "Ornament", slug: "Ornament-Rumah-Joglo-2" },
   { name: "Ornament Rumah Joglo 3", cat: "Ornament", slug: "Ornament-Rumah-Joglo-3" },
   { name: "Ornament Singer Lampung", cat: "Ornament", slug: "Ornament-Singer-Lampung" },
+  { name: "Phinisi", cat: "Ornament", slug: "Phinisi" },
   { name: "Mahkota-Sunda", cat: "Ornament", slug: "Mahkota-Sunda" },
   { name: "Bissmillah", cat: "Ornament", slug: "Bissmillah" },
   { name: "Buku Nikah", cat: "Ornament", slug: "Buku-Nikah" },
